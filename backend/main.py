@@ -48,7 +48,7 @@ class HistoryItem(BaseModel):
     message: str
     bodyPart: str
     timestamp: str | None = None
-    # New: advice from the assistant stored directly with the history item
+    # Advice from the assistant stored directly with the history item
     advice: str | None = None
 
 
@@ -263,6 +263,87 @@ async def ask_chat_gpt_for_overall_summary(
     )
 
     return completion.choices[0].message.content.strip()
+
+
+async def ask_chat_gpt_for_analysis(
+    devices,
+    history,
+    devices_data,
+    chat_history,
+    current_problem,
+) -> List[Dict[str, Any]]:
+    """
+    Ask ChatGPT to analyze all available data and return 1–5
+    possible 'disease' labels with integer risk 0–10.
+
+    This is explicitly NOT a diagnosis, just a rough risk tagging.
+    """
+    # Use most recent slices to keep prompt size under control
+    history_for_model = history[:8]
+    devices_data_for_model = devices_data[:40]
+    chat_history_for_model = chat_history[:10]
+
+    system_prompt = (
+        "You are an assistant in a health-monitoring app. "
+        "You are NOT a doctor and this is NOT medical advice or diagnosis. "
+        "Your job is only to generate rough, high-level risk tags for possible conditions, "
+        "based on symptoms, sensors, and chat history. "
+        "Your output will be displayed with a clear warning that it is not medical advice."
+    )
+
+    payload = {
+        "current_problem": current_problem,
+        "devices": devices,
+        "history_most_recent_first": history_for_model,
+        "devices_data_most_recent_first": devices_data_for_model,
+        "chat_history_most_recent_first": chat_history_for_model,
+    }
+
+    user_message = (
+        "You will receive JSON with symptom history, current problem, connected devices, "
+        "sensor data, and chat history from a health-monitoring app.\n\n"
+        "Your task:\n"
+        "- Infer up to 5 POSSIBLE conditions or problem categories (these are NOT diagnoses).\n"
+        "- For each, assign an integer risk score from 0 to 10 (0 = no apparent risk, 10 = very concerning). "
+        "Use 0–3 for low risk, 4–6 for moderate, 7–10 for high concern.\n"
+        "- Focus on broad, human-readable labels like 'migraine', 'anxiety-related symptoms', "
+        "'mild dehydration', 'cardiovascular issue', etc. Avoid very rare or hyper-specific diseases.\n"
+        "- If data is very unclear, include one item like 'Unclear cause' with a low risk (1–3).\n\n"
+        "FORMAT REQUIREMENTS (VERY IMPORTANT):\n"
+        "- Respond with ONLY a JSON array.\n"
+        "- Length must be between 1 and 5.\n"
+        "- Each element must be an object with EXACTLY these keys: \"disease\" (string) and \"risk\" (integer 0–10).\n"
+        "- Do NOT include any extra keys, comments, text, or explanations outside the JSON.\n\n"
+        "Example of valid output:\n"
+        "[\n"
+        "  {\"disease\": \"migraine\", \"risk\": 4},\n"
+        "  {\"disease\": \"tension headache\", \"risk\": 6}\n"
+        "]\n\n"
+        "Here is the data as JSON:\n"
+        f"{json.dumps(payload, ensure_ascii=False, indent=2)}"
+    )
+
+    completion = await async_client.chat.completions.create(
+        model="gpt-5.1",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message},
+        ],
+        temperature=0.3,
+    )
+
+    raw = completion.choices[0].message.content.strip()
+
+    # Try to parse robustly; if it fails, we will handle in caller
+    try:
+        parsed = json.loads(raw)
+        if not isinstance(parsed, list):
+            raise ValueError("Analysis output is not a list")
+    except Exception:
+        # Bubble up as error; caller will create fallback
+        raise ValueError(f"Model returned invalid JSON: {raw!r}")
+
+    return parsed
 
 
 def parse_iso_datetime(ts: str) -> str:
@@ -797,13 +878,91 @@ def get_chat_history():
     # Add all chat_history entries as-is
     entries.extend(chat_history)
 
-    # Sort combined list newest-first or oldest-first as you prefer; currently oldest-first:
+    # Sort combined list oldest-first
     entries.sort(
         key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
         reverse=False,
     )
 
     return entries
+
+
+@app.get("/analize")
+async def analize():
+    """
+    Analyze all available data (history, sensors, chat, devices) and return
+    1–5 objects of the form { "disease": str, "risk": int(0–10) }.
+
+    This is NOT a diagnosis. It is a rough, automated risk tagging.
+    """
+    data = load_data()
+
+    devices = data.get("devices", [])
+    history = data.get("history", [])
+    devices_data = data.get("devices_data", [])
+    chat_history = data.get("chat_history", [])
+    current_problem = data.get("current_problem")
+
+    # If current_problem is missing, use most recent history item, if any
+    if not current_problem and history:
+        current_problem = sorted(
+            history,
+            key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+            reverse=True,
+        )[0]
+
+    try:
+        raw_list = await ask_chat_gpt_for_analysis(
+            devices=devices,
+            history=history,
+            devices_data=devices_data,
+            chat_history=chat_history,
+            current_problem=current_problem,
+        )
+
+        cleaned: List[Dict[str, Any]] = []
+        for item in raw_list:
+            if not isinstance(item, dict):
+                continue
+
+            disease = item.get("disease")
+            if not disease:
+                continue
+            disease = str(disease)
+
+            risk = item.get("risk", 0)
+            try:
+                risk_int = int(risk)
+            except Exception:
+                risk_int = 0
+            # Clamp to 0–10
+            if risk_int < 0:
+                risk_int = 0
+            if risk_int > 10:
+                risk_int = 10
+
+            cleaned.append({"disease": disease, "risk": risk_int})
+
+        # Ensure we always return at least one item
+        if not cleaned:
+            cleaned = [
+                {
+                    "disease": "Analysis unavailable or unclear",
+                    "risk": 0,
+                }
+            ]
+
+    except Exception as e:
+        # Fallback on any failure
+        cleaned = [
+            {
+                "disease": "Analysis failed",
+                "risk": 0,
+            }
+        ]
+
+    # Return between 1 and 5 items (truncate if model gave more)
+    return cleaned[:5]
 
 
 # Run with:

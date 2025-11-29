@@ -11,6 +11,13 @@ from openai import OpenAI
 
 from dotenv import load_dotenv
 
+from fastapi.responses import FileResponse
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import mm
+from datetime import datetime
+
 # Initialize OpenAI client
 # Make sure you set the environment variable: OPENAI_API_KEY
 # e.g. in your shell: export OPENAI_API_KEY="sk-..."
@@ -28,6 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+PDF_FILE = "Report.pdf"
 DATA_FILE = "data.json"
 
 
@@ -154,6 +162,118 @@ def ask_chat_gpt_for_advice(
 
     return completion.choices[0].message.content.strip()
 
+
+@app.get("/generate_report")
+def gen_report():
+    data = load_data()
+
+    c = canvas.Canvas(PDF_FILE, pagesize=A4)
+    width, height = A4
+
+    # ---------------- HEADER ----------------
+    c.setFont("Helvetica-Bold", 22)
+    c.drawString(40, height - 50, "Health Monitoring Report")
+
+    c.setLineWidth(1.2)
+    c.setStrokeColor(colors.darkgray)
+    c.line(40, height - 60, width - 40, height - 60)
+
+    y = height - 90
+
+    # ---------------- DEVICE INFO ----------------
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, "Device Information:")
+    y -= 20
+
+    device_field = data.get("device", "ShoulderFlexPro")
+
+    if isinstance(device_field, dict):
+        device_name = device_field.get("name", "ShoulderFlexPro")
+    else:
+        device_name = device_field
+    c.setFont("Helvetica", 11)
+    c.drawString(70, y, f"Device name: {device_name}")
+    y -= 25
+
+        # ---------------- ТУТ ВИВЕСТИ ІНФО ЩО НАДАВ ПРИЙСТРІЙ ----------------
+
+    for session in data.get("sessions", []):
+        ts = session.get("timestamp", "")
+
+        try:
+            dt = datetime.fromisoformat(ts.replace("Z", ""))
+            date_str = dt.strftime("%Y-%m-%d")
+            time_str = dt.strftime("%H:%M")
+        except:
+            date_str, time_str = ts, ""
+
+        c.setFont("Helvetica", 11)
+        c.drawString(70, y, f"Date: {date_str}  Time: {time_str}")
+        y -= 15
+        c.drawString(90, y, f"Alignment score: {session.get('alignmentScore', 'N/A')}")
+        y -= 15
+        c.drawString(90, y, f"Pressure points: {session.get('pressurePoints', 'N/A')}")
+        y -= 25
+
+    # ---------------- HISTORY TITLE ----------------
+    if y < 120:
+        c.showPage()
+        y = height - 80
+
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(40, y, "Patient History")
+    y -= 30
+
+    c.setFont("Helvetica", 12)
+
+    # ---------------- TEXT WRAP FUNCTION ----------------
+    def draw_wrapped_text(c, text, x, y, max_width):
+        words = text.split(" ")
+        line = ""
+        for word in words:
+            if c.stringWidth(line + word, "Helvetica", 12) < max_width:
+                line += word + " "
+            else:
+                c.drawString(x, y, line)
+                y -= 14
+                line = word + " "
+        if line:
+            c.drawString(x, y, line)
+            y -= 14
+        return y
+
+    # ---------------- HISTORY CONTENT ----------------
+    for hist in data.get("history", []):
+        raw_ts = hist.get("timestamp", "")
+
+        try:
+            dt = datetime.fromisoformat(raw_ts.replace("Z", ""))
+            date_str = dt.strftime("%Y-%m-%d")
+            time_str = dt.strftime("%H:%M")
+        except:
+            date_str, time_str = raw_ts, ""
+
+        entry_lines = [
+            f"Date: {date_str}",
+            f"Time: {time_str}",
+            f"Message: {hist.get('message', '')}",
+            f"Body part: {hist.get('bodyPart', '')}",
+        ]
+
+        if y < 120:
+            c.showPage()
+            c.setFont("Helvetica", 12)
+            y = height - 50
+
+        for line in entry_lines:
+            y = draw_wrapped_text(c, line, 50, y, width - 100)
+            y -= 5
+
+        y -= 15
+
+    # ---------------- SAVE PDF ----------------
+    c.save()
+    return FileResponse(PDF_FILE, media_type="application/pdf", filename="report.pdf")
 
 @app.post("/history")
 def create_history(item: HistoryItem):

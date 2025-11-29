@@ -106,6 +106,21 @@
       "message": "my leg hurts today",
       "bodyPart": "leg",
       "timestamp": "2025-11-29T03:37:52.676681Z"
+    },
+    {
+      "message": "my leg hurts today",
+      "bodyPart": "leg",
+      "timestamp": "2025-11-29T16:57:51.385732Z"
+    },
+    {
+      "message": "my leg hurts today",
+      "bodyPart": "leg",
+      "timestamp": "2025-11-29T17:15:29.803317Z"
+    },
+    {
+      "message": "my leg hurts today",
+      "bodyPart": "leg",
+      "timestamp": "2025-11-29T17:26:06.729756Z"
     }
   ],
   "devices_data": [
@@ -279,5 +294,28 @@
         }
       ]
     }
-  ]
+  ],
+  "chat_history": [
+  {
+    "role": "user",
+    "message": "My chest feels tight since yesterday evening.",
+    "timestamp": "2025-11-29T18:45:12Z"
+  },
+  {
+    "role": "assistant",
+    "message": "Thanks for sharing that. This is not real medical advice, but chest tightness can have many causes...",
+    "timestamp": "2025-11-29T18:45:15Z"
+  },
+  {
+    "role": "user",
+    "message": "It gets worse when I lie down, better when I sit up.",
+    "timestamp": "2025-11-29T18:47:02Z"
+  },
+  {
+    "role": "assistant",
+    "message": "Got it. Since this is just a demo and not real medical advice, I can only suggest general tips...",
+    "timestamp": "2025-11-29T18:47:05Z"
+  }
+]
+
 }

@@ -1,0 +1,107 @@
+{
+  "devices": [
+    "ShoulderFlexPro",
+    "KneeMaster9000",
+    "SpineAlignX",
+    "ElbowEaseLite",
+    "WristWave",
+    "HipMotionTracker",
+    "AnklePulse",
+    "NeckRelaxOne",
+    "BackStabilizerV2",
+    "FootPressureSense"
+  ],
+  "history": [
+    { "message": "User reported tightness during flexion", "bodyPart": "shoulder" },
+    { "message": "Detected high load threshold exceeded", "bodyPart": "knee" },
+    { "message": "Requested calibration routine", "bodyPart": "back" },
+    { "message": "Pain level noted as moderate", "bodyPart": "elbow" },
+    { "message": "Low mobility range detected", "bodyPart": "hip" },
+    { "message": "System flagged abnormal curvature", "bodyPart": "spine" },
+    { "message": "User requested vibration mode", "bodyPart": "neck" },
+    { "message": "Balance compensation triggered", "bodyPart": "ankle" },
+    { "message": "Unexpected torque recorded", "bodyPart": "wrist" },
+    { "message": "Pressure distribution logged", "bodyPart": "foot" },
+    { "message": "Repeated strain detected during extension", "bodyPart": "shoulder" },
+    { "message": "User feedback: soreness decreasing", "bodyPart": "knee" },
+    { "message": "Heat module activated", "bodyPart": "back" },
+    { "message": "Quick recovery measurement sequence started", "bodyPart": "hip" },
+    { "message": "Compression mode enabled", "bodyPart": "ankle" },
+    { "message": "Recorded unusually high relaxation response", "bodyPart": "neck" },
+    { "message": "Stabilization protocol initiated", "bodyPart": "spine" }
+  ],
+  "devices_data": [
+    {
+      "device": "ShoulderFlexPro",
+      "sessions": [
+        { "timestamp": "2025-01-01T10:23:00Z", "rangeOfMotion": 68, "painLevel": 4 },
+        { "timestamp": "2025-01-03T11:47:00Z", "rangeOfMotion": 73, "painLevel": 3 },
+        { "timestamp": "2025-01-08T09:15:00Z", "rangeOfMotion": 76, "painLevel": 2 }
+      ]
+    },
+    {
+      "device": "KneeMaster9000",
+      "sessions": [
+        { "timestamp": "2025-01-02T13:20:00Z", "flexAngle": 95, "strain": 0.12 },
+        { "timestamp": "2025-01-05T14:10:00Z", "flexAngle": 101, "strain": 0.10 },
+        { "timestamp": "2025-01-10T16:45:00Z", "flexAngle": 108, "strain": 0.08 }
+      ]
+    },
+    {
+      "device": "SpineAlignX",
+      "sessions": [
+        { "timestamp": "2025-01-04T09:00:00Z", "alignmentScore": 82, "pressurePoints": 4 },
+        { "timestamp": "2025-01-09T09:05:00Z", "alignmentScore": 85, "pressurePoints": 3 }
+      ]
+    },
+    {
+      "device": "ElbowEaseLite",
+      "sessions": [
+        { "timestamp": "2025-01-03T17:00:00Z", "extensionAngle": 142, "painLevel": 3 },
+        { "timestamp": "2025-01-07T18:32:00Z", "extensionAngle": 148, "painLevel": 2 }
+      ]
+    },
+    {
+      "device": "WristWave",
+      "sessions": [
+        { "timestamp": "2025-01-01T12:00:00Z", "rotation": 42, "sensitivity": 0.4 },
+        { "timestamp": "2025-01-06T12:30:00Z", "rotation": 47, "sensitivity": 0.35 }
+      ]
+    },
+    {
+      "device": "HipMotionTracker",
+      "sessions": [
+        { "timestamp": "2025-01-05T15:00:00Z", "mobility": 61, "frictionIndex": 0.22 },
+        { "timestamp": "2025-01-11T15:10:00Z", "mobility": 64, "frictionIndex": 0.19 }
+      ]
+    },
+    {
+      "device": "AnklePulse",
+      "sessions": [
+        { "timestamp": "2025-01-02T07:40:00Z", "balanceShift": 0.18, "impactLoad": 23 },
+        { "timestamp": "2025-01-08T08:15:00Z", "balanceShift": 0.15, "impactLoad": 19 }
+      ]
+    },
+    {
+      "device": "NeckRelaxOne",
+      "sessions": [
+        { "timestamp": "2025-01-03T19:25:00Z", "tensionLevel": 70, "relaxationScore": 30 },
+        { "timestamp": "2025-01-10T19:30:00Z", "tensionLevel": 62, "relaxationScore": 41 }
+      ]
+    },
+    {
+      "device": "BackStabilizerV2",
+      "sessions": [
+        { "timestamp": "2025-01-04T10:50:00Z", "stabilityIndex": 55, "muscleSupport": 0.75 },
+        { "timestamp": "2025-01-09T11:05:00Z", "stabilityIndex": 59, "muscleSupport": 0.81 }
+      ]
+    },
+    {
+      "device": "FootPressureSense",
+      "sessions": [
+        { "timestamp": "2025-01-02T16:00:00Z", "pressureMap": [22, 30, 18, 25], "gaitQuality": 71 },
+        { "timestamp": "2025-01-06T16:30:00Z", "pressureMap": [20, 29, 16, 23], "gaitQuality": 76 }
+      ]
+    }
+  ]
+}

@@ -12,95 +12,271 @@
     "FootPressureSense"
   ],
   "history": [
-    { "message": "User reported tightness during flexion", "bodyPart": "shoulder" },
-    { "message": "Detected high load threshold exceeded", "bodyPart": "knee" },
-    { "message": "Requested calibration routine", "bodyPart": "back" },
-    { "message": "Pain level noted as moderate", "bodyPart": "elbow" },
-    { "message": "Low mobility range detected", "bodyPart": "hip" },
-    { "message": "System flagged abnormal curvature", "bodyPart": "spine" },
-    { "message": "User requested vibration mode", "bodyPart": "neck" },
-    { "message": "Balance compensation triggered", "bodyPart": "ankle" },
-    { "message": "Unexpected torque recorded", "bodyPart": "wrist" },
-    { "message": "Pressure distribution logged", "bodyPart": "foot" },
-    { "message": "Repeated strain detected during extension", "bodyPart": "shoulder" },
-    { "message": "User feedback: soreness decreasing", "bodyPart": "knee" },
-    { "message": "Heat module activated", "bodyPart": "back" },
-    { "message": "Quick recovery measurement sequence started", "bodyPart": "hip" },
-    { "message": "Compression mode enabled", "bodyPart": "ankle" },
-    { "message": "Recorded unusually high relaxation response", "bodyPart": "neck" },
-    { "message": "Stabilization protocol initiated", "bodyPart": "spine" }
+    {
+      "message": "User reported tightness during flexion",
+      "bodyPart": "shoulder",
+      "timestamp": "2025-11-29T06:38:39.242275Z"
+    },
+    {
+      "message": "Detected high load threshold exceeded",
+      "bodyPart": "knee",
+      "timestamp": "2025-11-29T14:42:38.396250Z"
+    },
+    {
+      "message": "Requested calibration routine",
+      "bodyPart": "back",
+      "timestamp": "2025-11-29T08:44:52.390575Z"
+    },
+    {
+      "message": "Pain level noted as moderate",
+      "bodyPart": "elbow",
+      "timestamp": "2025-11-28T20:20:40.380705Z"
+    },
+    {
+      "message": "Low mobility range detected",
+      "bodyPart": "hip",
+      "timestamp": "2025-11-27T18:18:03.757543Z"
+    },
+    {
+      "message": "System flagged abnormal curvature",
+      "bodyPart": "spine",
+      "timestamp": "2025-11-27T16:53:18.022007Z"
+    },
+    {
+      "message": "User requested vibration mode",
+      "bodyPart": "neck",
+      "timestamp": "2025-11-28T15:26:42.555853Z"
+    },
+    {
+      "message": "Balance compensation triggered",
+      "bodyPart": "ankle",
+      "timestamp": "2025-11-28T11:01:47.586053Z"
+    },
+    {
+      "message": "Unexpected torque recorded",
+      "bodyPart": "wrist",
+      "timestamp": "2025-11-28T01:53:23.050803Z"
+    },
+    {
+      "message": "Pressure distribution logged",
+      "bodyPart": "foot",
+      "timestamp": "2025-11-28T08:27:47.318075Z"
+    },
+    {
+      "message": "Repeated strain detected during extension",
+      "bodyPart": "shoulder",
+      "timestamp": "2025-11-29T01:10:09.287891Z"
+    },
+    {
+      "message": "User feedback: soreness decreasing",
+      "bodyPart": "knee",
+      "timestamp": "2025-11-28T19:54:11.217070Z"
+    },
+    {
+      "message": "Heat module activated",
+      "bodyPart": "back",
+      "timestamp": "2025-11-29T07:19:46.608753Z"
+    },
+    {
+      "message": "Quick recovery measurement sequence started",
+      "bodyPart": "hip",
+      "timestamp": "2025-11-29T11:44:35.121987Z"
+    },
+    {
+      "message": "Compression mode enabled",
+      "bodyPart": "ankle",
+      "timestamp": "2025-11-28T01:56:13.707466Z"
+    },
+    {
+      "message": "Recorded unusually high relaxation response",
+      "bodyPart": "neck",
+      "timestamp": "2025-11-28T20:30:51.527423Z"
+    },
+    {
+      "message": "Stabilization protocol initiated",
+      "bodyPart": "spine",
+      "timestamp": "2025-11-29T03:49:16.533814Z"
+    },
+    {
+      "message": "my leg hurts today",
+      "bodyPart": "leg",
+      "timestamp": "2025-11-27T21:19:27.731092Z"
+    },
+    {
+      "message": "my leg hurts today",
+      "bodyPart": "leg",
+      "timestamp": "2025-11-29T03:37:52.676681Z"
+    }
   ],
   "devices_data": [
     {
       "device": "ShoulderFlexPro",
       "sessions": [
-        { "timestamp": "2025-01-01T10:23:00Z", "rangeOfMotion": 68, "painLevel": 4 },
-        { "timestamp": "2025-01-03T11:47:00Z", "rangeOfMotion": 73, "painLevel": 3 },
-        { "timestamp": "2025-01-08T09:15:00Z", "rangeOfMotion": 76, "painLevel": 2 }
+        {
+          "timestamp": "2025-11-28T10:36:09.581314Z",
+          "rangeOfMotion": 68,
+          "painLevel": 4
+        },
+        {
+          "timestamp": "2025-11-27T20:40:04.853834Z",
+          "rangeOfMotion": 73,
+          "painLevel": 3
+        },
+        {
+          "timestamp": "2025-11-27T23:44:05.829456Z",
+          "rangeOfMotion": 76,
+          "painLevel": 2
+        }
       ]
     },
     {
       "device": "KneeMaster9000",
       "sessions": [
-        { "timestamp": "2025-01-02T13:20:00Z", "flexAngle": 95, "strain": 0.12 },
-        { "timestamp": "2025-01-05T14:10:00Z", "flexAngle": 101, "strain": 0.10 },
-        { "timestamp": "2025-01-10T16:45:00Z", "flexAngle": 108, "strain": 0.08 }
+        {
+          "timestamp": "2025-11-27T18:32:09.062988Z",
+          "flexAngle": 95,
+          "strain": 0.12
+        },
+        {
+          "timestamp": "2025-11-29T15:26:41.567685Z",
+          "flexAngle": 101,
+          "strain": 0.1
+        },
+        {
+          "timestamp": "2025-11-29T04:24:32.764285Z",
+          "flexAngle": 108,
+          "strain": 0.08
+        }
       ]
     },
     {
       "device": "SpineAlignX",
       "sessions": [
-        { "timestamp": "2025-01-04T09:00:00Z", "alignmentScore": 82, "pressurePoints": 4 },
-        { "timestamp": "2025-01-09T09:05:00Z", "alignmentScore": 85, "pressurePoints": 3 }
+        {
+          "timestamp": "2025-11-29T10:38:22.049239Z",
+          "alignmentScore": 82,
+          "pressurePoints": 4
+        },
+        {
+          "timestamp": "2025-11-27T17:51:29.705417Z",
+          "alignmentScore": 85,
+          "pressurePoints": 3
+        }
       ]
     },
     {
       "device": "ElbowEaseLite",
       "sessions": [
-        { "timestamp": "2025-01-03T17:00:00Z", "extensionAngle": 142, "painLevel": 3 },
-        { "timestamp": "2025-01-07T18:32:00Z", "extensionAngle": 148, "painLevel": 2 }
+        {
+          "timestamp": "2025-11-27T17:40:08.506378Z",
+          "extensionAngle": 142,
+          "painLevel": 3
+        },
+        {
+          "timestamp": "2025-11-27T18:43:38.197116Z",
+          "extensionAngle": 148,
+          "painLevel": 2
+        }
       ]
     },
     {
       "device": "WristWave",
       "sessions": [
-        { "timestamp": "2025-01-01T12:00:00Z", "rotation": 42, "sensitivity": 0.4 },
-        { "timestamp": "2025-01-06T12:30:00Z", "rotation": 47, "sensitivity": 0.35 }
+        {
+          "timestamp": "2025-11-28T23:34:46.843973Z",
+          "rotation": 42,
+          "sensitivity": 0.4
+        },
+        {
+          "timestamp": "2025-11-29T14:44:26.092892Z",
+          "rotation": 47,
+          "sensitivity": 0.35
+        }
       ]
     },
     {
       "device": "HipMotionTracker",
       "sessions": [
-        { "timestamp": "2025-01-05T15:00:00Z", "mobility": 61, "frictionIndex": 0.22 },
-        { "timestamp": "2025-01-11T15:10:00Z", "mobility": 64, "frictionIndex": 0.19 }
+        {
+          "timestamp": "2025-11-29T14:33:53.835631Z",
+          "mobility": 61,
+          "frictionIndex": 0.22
+        },
+        {
+          "timestamp": "2025-11-29T13:18:02.847363Z",
+          "mobility": 64,
+          "frictionIndex": 0.19
+        }
       ]
     },
     {
       "device": "AnklePulse",
       "sessions": [
-        { "timestamp": "2025-01-02T07:40:00Z", "balanceShift": 0.18, "impactLoad": 23 },
-        { "timestamp": "2025-01-08T08:15:00Z", "balanceShift": 0.15, "impactLoad": 19 }
+        {
+          "timestamp": "2025-11-28T13:11:24.878619Z",
+          "balanceShift": 0.18,
+          "impactLoad": 23
+        },
+        {
+          "timestamp": "2025-11-28T22:01:42.081090Z",
+          "balanceShift": 0.15,
+          "impactLoad": 19
+        }
       ]
     },
     {
       "device": "NeckRelaxOne",
       "sessions": [
-        { "timestamp": "2025-01-03T19:25:00Z", "tensionLevel": 70, "relaxationScore": 30 },
-        { "timestamp": "2025-01-10T19:30:00Z", "tensionLevel": 62, "relaxationScore": 41 }
+        {
+          "timestamp": "2025-11-29T08:17:18.818370Z",
+          "tensionLevel": 70,
+          "relaxationScore": 30
+        },
+        {
+          "timestamp": "2025-11-28T03:45:59.123620Z",
+          "tensionLevel": 62,
+          "relaxationScore": 41
+        }
       ]
     },
     {
       "device": "BackStabilizerV2",
       "sessions": [
-        { "timestamp": "2025-01-04T10:50:00Z", "stabilityIndex": 55, "muscleSupport": 0.75 },
-        { "timestamp": "2025-01-09T11:05:00Z", "stabilityIndex": 59, "muscleSupport": 0.81 }
+        {
+          "timestamp": "2025-11-29T05:49:41.017187Z",
+          "stabilityIndex": 55,
+          "muscleSupport": 0.75
+        },
+        {
+          "timestamp": "2025-11-29T13:24:53.748870Z",
+          "stabilityIndex": 59,
+          "muscleSupport": 0.81
+        }
       ]
     },
     {
       "device": "FootPressureSense",
       "sessions": [
-        { "timestamp": "2025-01-02T16:00:00Z", "pressureMap": [22, 30, 18, 25], "gaitQuality": 71 },
-        { "timestamp": "2025-01-06T16:30:00Z", "pressureMap": [20, 29, 16, 23], "gaitQuality": 76 }
+        {
+          "timestamp": "2025-11-27T23:24:49.920566Z",
+          "pressureMap": [
+            22,
+            30,
+            18,
+            25
+          ],
+          "gaitQuality": 71
+        },
+        {
+          "timestamp": "2025-11-28T16:04:09.421799Z",
+          "pressureMap": [
+            20,
+            29,
+            16,
+            23
+          ],
+          "gaitQuality": 76
+        }
       ]
     }
   ]

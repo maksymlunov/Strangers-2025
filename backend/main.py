@@ -34,6 +34,7 @@ DATA_FILE = "data.json"
 class HistoryItem(BaseModel):
     message: str
     bodyPart: str
+    timestamp: str | None = None  # ISO 8601 format, auto-generated if not provided
 
 
 class DeviceRequest(BaseModel):
@@ -51,7 +52,17 @@ def load_data() -> Dict[str, Any]:
         return initial_data
 
     with open(DATA_FILE, "r") as f:
-        return json.load(f)
+        data = json.load(f)
+    
+    # Migration: add timestamps to existing history records that don't have them
+    if "history" in data:
+        for item in data["history"]:
+            if "timestamp" not in item:
+                item["timestamp"] = datetime.utcnow().isoformat() + "Z"
+        # Save the migrated data
+        save_data(data)
+    
+    return data
 
 
 def save_data(data: Dict[str, Any]) -> None:
@@ -148,7 +159,10 @@ def ask_chat_gpt_for_advice(
 def create_history(item: HistoryItem):
     data = load_data()
 
-    new_item = {"message": item.message, "bodyPart": item.bodyPart}
+    # Auto-generate timestamp if not provided
+    timestamp = item.timestamp or datetime.utcnow().isoformat() + "Z"
+    
+    new_item = {"message": item.message, "bodyPart": item.bodyPart, "timestamp": timestamp}
     data["history"].append(new_item)
 
     # Ensure devices_data key exists

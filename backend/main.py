@@ -58,6 +58,37 @@ class ChatRequest(BaseModel):
     message: str
 
 
+def _parse_iso_to_datetime(ts: str | None) -> datetime:
+    """Internal helper: robust ISO timestamp -> datetime (invalid = very old)."""
+    if not ts:
+        return datetime.min
+    try:
+        if ts.endswith("Z"):
+            ts = ts[:-1]
+        return datetime.fromisoformat(ts)
+    except Exception:
+        return datetime.min
+
+
+def _sort_data_inplace(data: Dict[str, Any]) -> None:
+    """Sort history, devices_data, chat_history by timestamp (most recent first)."""
+    if "history" in data and isinstance(data["history"], list):
+        data["history"].sort(
+            key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+            reverse=True,
+        )
+    if "devices_data" in data and isinstance(data["devices_data"], list):
+        data["devices_data"].sort(
+            key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+            reverse=True,
+        )
+    if "chat_history" in data and isinstance(data["chat_history"], list):
+        data["chat_history"].sort(
+            key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+            reverse=True,
+        )
+
+
 def load_data() -> Dict[str, Any]:
     if not os.path.exists(DATA_FILE):
         initial_data = {
@@ -95,10 +126,15 @@ def load_data() -> Dict[str, Any]:
         if updated:
             save_data(data)
 
+    # Ensure sorted (most recent first)
+    _sort_data_inplace(data)
+
     return data
 
 
 def save_data(data: Dict[str, Any]) -> None:
+    # Always sort before saving so file is chronological (newest first)
+    _sort_data_inplace(data)
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=2)
 
@@ -111,23 +147,21 @@ def get_recent_sensor_data(
 
     for item in devices_data:
         ts = item.get("timestamp")
-        if not ts:
-            recent.append(item)
-            continue
-
-        try:
-            parsed = datetime.fromisoformat(ts)
-        except Exception:
-            recent.append(item)
-            continue
-
+        parsed = _parse_iso_to_datetime(ts)
         if parsed >= cutoff:
             recent.append(item)
+
+    # Ensure most recent first
+    recent.sort(
+        key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+        reverse=True,
+    )
 
     return recent
 
 
 async def ask_chat_gpt_for_advice(history, current_complaint, devices_data):
+    # history is stored newest-first; keep that
     recent_sensors = get_recent_sensor_data(devices_data, hours=12)
 
     system_prompt = (
@@ -138,11 +172,11 @@ async def ask_chat_gpt_for_advice(history, current_complaint, devices_data):
         "You are NOT a doctor and this is NOT medical advice."
     )
 
-    # Use only last few history entries to avoid huge context
-    trimmed_history = history[-5:]
+    # Take the 5 most recent history items
+    trimmed_history = history[:5]
 
     user_payload = {
-        "full_history_last_5": trimmed_history,
+        "full_history_most_recent_5": trimmed_history,
         "current_complaint": current_complaint,
         "recent_sensor_data_last_12h": recent_sensors,
     }
@@ -182,9 +216,10 @@ async def ask_chat_gpt_for_overall_summary(
     Returns a plain string.
     """
 
-    history_for_model = history[-5:]           # last 5 symptoms
-    devices_data_for_model = devices_data[-5:] # last 5 sensor records
-    chat_history_for_model = chat_history[-6:] # last 6 chat messages
+    # All lists are stored newest-first; slice from the front
+    history_for_model = history[:5]            # 5 most recent symptoms
+    devices_data_for_model = devices_data[:5]  # 5 most recent sensor records
+    chat_history_for_model = chat_history[:6]  # 6 most recent chat messages
 
     system_prompt = (
         "You are a helpful assistant in a health-monitoring app. "
@@ -196,9 +231,9 @@ async def ask_chat_gpt_for_overall_summary(
     payload = {
         "current_problem": current_problem,
         "devices": devices,
-        "recent_history": history_for_model,
-        "recent_devices_data": devices_data_for_model,
-        "recent_chat_history": chat_history_for_model,
+        "recent_history_most_recent_first": history_for_model,
+        "recent_devices_data_most_recent_first": devices_data_for_model,
+        "recent_chat_history_most_recent_first": chat_history_for_model,
     }
 
     user_message = (
@@ -230,16 +265,10 @@ async def ask_chat_gpt_for_overall_summary(
 
 def parse_iso_datetime(ts: str) -> str:
     """Convert ISO timestamp to a nicer human-readable format."""
-    if not ts:
-        return "Unknown time"
-    try:
-        # strip trailing Z if present
-        if ts.endswith("Z"):
-            ts = ts[:-1]
-        dt = datetime.fromisoformat(ts)
-        return dt.strftime("%Y-%m-%d %H:%M")
-    except Exception:
-        return ts
+    dt = _parse_iso_to_datetime(ts)
+    if dt == datetime.min:
+        return ts or "Unknown time"
+    return dt.strftime("%Y-%m-%d %H:%M")
 
 
 def build_devices_section(devices, styles):
@@ -264,11 +293,17 @@ def build_history_section(history, styles, max_items: int | None = None):
         story.append(Spacer(1, 10))
         return story
 
-    items = history
-    if max_items is not None:
-        items = history[-max_items:]
+    # Ensure newest-first order when rendering
+    sorted_items = sorted(
+        history,
+        key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+        reverse=True,
+    )
 
-    for item in items:
+    if max_items is not None:
+        sorted_items = sorted_items[:max_items]
+
+    for item in sorted_items:
         timestamp = parse_iso_datetime(item.get("timestamp"))
         body_part = item.get("bodyPart", "Unknown area")
         message = item.get("message", "")
@@ -288,13 +323,19 @@ def build_sensor_section(devices_data, styles, max_items: int | None = None):
         story.append(Spacer(1, 10))
         return story
 
+    # Sort newest-first for display
+    sorted_items = sorted(
+        devices_data,
+        key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+        reverse=True,
+    )
+
+    if max_items is not None:
+        sorted_items = sorted_items[:max_items]
+
     data = [["Time", "Source", "Data Summary"]]
 
-    items = devices_data
-    if max_items is not None:
-        items = devices_data[-max_items:]
-
-    for item in items:
+    for item in sorted_items:
         timestamp = parse_iso_datetime(item.get("timestamp"))
         source = item.get("device") or item.get("source") or "-"
         summary_parts = []
@@ -339,11 +380,16 @@ def build_chat_section(chat_history, styles, max_items: int | None = None):
         story.append(Spacer(1, 10))
         return story
 
-    items = chat_history
-    if max_items is not None:
-        items = chat_history[-max_items:]
+    sorted_items = sorted(
+        chat_history,
+        key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+        reverse=True,
+    )
 
-    for msg in items:
+    if max_items is not None:
+        sorted_items = sorted_items[:max_items]
+
+    for msg in sorted_items:
         role = msg.get("role", "user")
         role_label = "User" if role == "user" else "Assistant"
         timestamp = parse_iso_datetime(msg.get("timestamp"))
@@ -374,12 +420,17 @@ async def ask_chat_gpt_for_chat(current_problem, chat_history, user_message: str
         "You are NOT a doctor and this is NOT medical advice."
     )
 
-    # Use only last few chat messages for context
-    trimmed_chat = chat_history[-6:]
+    # Ensure newest-first, then take the most recent 6
+    sorted_chat = sorted(
+        chat_history,
+        key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+        reverse=True,
+    )
+    trimmed_chat = sorted_chat[:6]
 
     payload = {
         "initial_problem_from_history": current_problem,
-        "recent_chat_history": trimmed_chat,
+        "recent_chat_history_most_recent_first": trimmed_chat,
         "latest_user_message": user_message,
     }
 
@@ -428,7 +479,7 @@ async def create_history(item: HistoryItem):
     data["current_problem"] = new_item
     data["chat_history"] = []
 
-    save_data(data)
+
 
     try:
         advice = await ask_chat_gpt_for_advice(
@@ -441,7 +492,13 @@ async def create_history(item: HistoryItem):
             "System notice: AI call failed, so here is a fallback message.\n"
             f"Internal error: {e}"
         )
-
+    chats_ans = {
+        "role": "assistant",
+        "message": advice,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+    }
+    data["chat_history"].append(chats_ans)
+    save_data(data)
     return {
         "history_item": new_item,
         "advice": advice,
@@ -461,7 +518,8 @@ async def chat(req: ChatRequest):
 
     current_problem = data.get("current_problem")
     if not current_problem and data.get("history"):
-        current_problem = data["history"][-1]
+        # history is newest-first; current problem = most recent
+        current_problem = data["history"][0]
         data["current_problem"] = current_problem
 
     if "chat_history" not in data:
@@ -495,10 +553,17 @@ async def chat(req: ChatRequest):
 
     save_data(data)
 
+    # Make sure returned chat_history is newest-first
+    sorted_chat = sorted(
+        data["chat_history"],
+        key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+        reverse=True,
+    )
+
     return {
         "current_problem": current_problem,
         "reply": reply,
-        "chat_history": data["chat_history"],
+        "chat_history": sorted_chat,
     }
 
 
@@ -519,7 +584,13 @@ def get_devices():
 @app.get("/devices_data")
 def get_devices_data():
     data = load_data()
-    return data["devices_data"]
+    # Always return sensor data newest-first
+    sorted_devices_data = sorted(
+        data.get("devices_data", []),
+        key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+        reverse=True,
+    )
+    return sorted_devices_data
 
 
 @app.get("/doctor_report")
@@ -588,6 +659,15 @@ async def generate_doctor_report():
 
     # Current problem snapshot (raw data)
     story.append(Paragraph("Current Problem Snapshot", styles["Heading2"]))
+
+    # Make sure we treat the most recent history item as current if missing
+    if not current_problem and history:
+        current_problem = sorted(
+            history,
+            key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+            reverse=True,
+        )[0]
+
     if current_problem:
         ts = parse_iso_datetime(current_problem.get("timestamp"))
         body_part = current_problem.get("bodyPart", "Unknown area")
@@ -609,7 +689,7 @@ async def generate_doctor_report():
     story.append(hr)
     story.append(Spacer(1, 16))
 
-    # Symptom history (last few entries)
+    # Symptom history (last few entries, newest-first)
     story.extend(build_history_section(history, styles, max_items=3))
     story.append(Spacer(1, 8))
 
@@ -617,10 +697,10 @@ async def generate_doctor_report():
     story.extend(build_devices_section(devices, styles))
     story.append(Spacer(1, 8))
 
-    # Sensor data (recent table)
+    # Sensor data (recent table, newest-first)
     story.extend(build_sensor_section(devices_data, styles, max_items=5))
 
-    # Chat messages (last few)
+    # Chat messages (last few, newest-first)
     story.append(Spacer(1, 16))
     story.extend(build_chat_section(chat_history, styles, max_items=6))
 
@@ -640,6 +720,50 @@ async def generate_doctor_report():
         media_type="application/pdf",
         filename=filename,
     )
+
+
+@app.get("/chat_history")
+def get_chat_history():
+    """
+    Return combined current problem + chat_history
+    in the same format as chat_history (role, message, timestamp),
+    sorted from latest to newest.
+    """
+    data = load_data()
+
+    entries: List[Dict[str, Any]] = []
+
+    current_problem = data.get("current_problem")
+    history = data.get("history", [])
+    chat_history = data.get("chat_history", [])
+
+    # If current_problem is missing, fall back to most recent history item
+    if not current_problem and history:
+        current_problem = sorted(
+            history,
+            key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+            reverse=True,
+        )[0]
+
+    if current_problem:
+        entries.append(
+            {
+                "role": "user",
+                "message": f"[Initial complaint] {current_problem.get('message', '')}",
+                "timestamp": current_problem.get("timestamp"),
+            }
+        )
+
+    # Add all chat_history entries as-is
+    entries.extend(chat_history)
+
+    # Sort combined list newest-first
+    entries.sort(
+        key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+        reverse=False,
+    )
+
+    return entries
 
 
 # Run with:

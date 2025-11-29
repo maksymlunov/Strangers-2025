@@ -48,6 +48,8 @@ class HistoryItem(BaseModel):
     message: str
     bodyPart: str
     timestamp: str | None = None
+    # New: advice from the assistant stored directly with the history item
+    advice: str | None = None
 
 
 class DeviceRequest(BaseModel):
@@ -307,8 +309,17 @@ def build_history_section(history, styles, max_items: int | None = None):
         timestamp = parse_iso_datetime(item.get("timestamp"))
         body_part = item.get("bodyPart", "Unknown area")
         message = item.get("message", "")
+        advice = item.get("advice")
+
         story.append(Paragraph(f"<b>{timestamp}</b> – {body_part}", styles["BodyText"]))
         story.append(Paragraph(message, styles["BodyText"]))
+        if advice:
+            story.append(
+                Paragraph(
+                    f"<i>App advice at that time:</i> {advice}",
+                    styles["BodyText"],
+                )
+            )
         story.append(Spacer(1, 6))
 
     story.append(Spacer(1, 10))
@@ -459,13 +470,33 @@ async def ask_chat_gpt_for_chat(current_problem, chat_history, user_message: str
     return completion.choices[0].message.content.strip()
 
 
+@app.get("/history_all")
+def get_all_history():
+    """
+    Return full symptom history sorted from newest to oldest.
+    Format stays exactly as stored: { message, bodyPart, timestamp, advice? }.
+    """
+    data = load_data()
+
+    history = data.get("history", [])
+
+    sorted_history = sorted(
+        history,
+        key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
+        reverse=True,   # newest → oldest
+    )
+
+    return sorted_history
+
+
 @app.post("/history")
 async def create_history(item: HistoryItem):
     data = load_data()
 
     timestamp = item.timestamp or datetime.utcnow().isoformat() + "Z"
 
-    new_item = {
+    # New history item starts without advice; we add it after the model replies
+    new_item: Dict[str, Any] = {
         "message": item.message,
         "bodyPart": item.bodyPart,
         "timestamp": timestamp,
@@ -479,8 +510,6 @@ async def create_history(item: HistoryItem):
     data["current_problem"] = new_item
     data["chat_history"] = []
 
-
-
     try:
         advice = await ask_chat_gpt_for_advice(
             history=data["history"],
@@ -492,6 +521,10 @@ async def create_history(item: HistoryItem):
             "System notice: AI call failed, so here is a fallback message.\n"
             f"Internal error: {e}"
         )
+
+    # Store advice directly into the history item so history + advice live together
+    new_item["advice"] = advice
+
     chats_ans = {
         "role": "assistant",
         "message": advice,
@@ -675,6 +708,13 @@ async def generate_doctor_report():
         story.append(Paragraph(f"<b>Reported at:</b> {ts}", styles["BodyText"]))
         story.append(Paragraph(f"<b>Body area:</b> {body_part}", styles["BodyText"]))
         story.append(Paragraph(f"<b>Description:</b> {msg}", styles["BodyText"]))
+        if current_problem.get("advice"):
+            story.append(
+                Paragraph(
+                    f"<b>Initial app advice:</b> {current_problem.get('advice')}",
+                    styles["BodyText"],
+                )
+            )
     else:
         story.append(
             Paragraph(
@@ -757,7 +797,7 @@ def get_chat_history():
     # Add all chat_history entries as-is
     entries.extend(chat_history)
 
-    # Sort combined list newest-first
+    # Sort combined list newest-first or oldest-first as you prefer; currently oldest-first:
     entries.sort(
         key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
         reverse=False,

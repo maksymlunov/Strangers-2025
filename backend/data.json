@@ -1,16 +1,10 @@
 {
   "devices": [
-    "ShoulderFlexPro",
-    "KneeMaster9000",
-    "SpineAlignX",
-    "ElbowEaseLite",
-    "WristWave",
-    "HipMotionTracker",
-    "AnklePulse",
-    "NeckRelaxOne",
-    "BackStabilizerV2",
-    "FootPressureSense"
-  ],
+  "Smartwatch",
+  "Fitness Band",
+  "Blood Pressure Monitor",
+  "Smart Scale"
+],
   "history": [
     {
       "message": "\u0423 \u043c\u0435\u043d\u044f \u043e\u0441\u0442\u0440\u0430\u044f \u0431\u043e\u043b\u044c \u0432 \u044d\u0442\u043e\u0439 \u043e\u0431\u043b\u0430\u0441\u0442\u0438\n",
@@ -20,47 +14,99 @@
     }
   ],
   "devices_data": [
-    {
-      "device": "ShoulderFlexPro",
-      "sessions": [
-        {
-          "timestamp": "2025-11-28T10:36:09.581314Z",
-          "rangeOfMotion": 68,
-          "painLevel": 4
-        },
-        {
-          "timestamp": "2025-11-27T20:40:04.853834Z",
-          "rangeOfMotion": 73,
-          "painLevel": 3
-        },
-        {
-          "timestamp": "2025-11-27T23:44:05.829456Z",
-          "rangeOfMotion": 76,
-          "painLevel": 2
-        }
-      ]
-    },
-    {
-      "device": "KneeMaster9000",
-      "sessions": [
-        {
-          "timestamp": "2025-11-27T18:32:09.062988Z",
-          "flexAngle": 95,
-          "strain": 0.12
-        },
-        {
-          "timestamp": "2025-11-29T15:26:41.567685Z",
-          "flexAngle": 101,
-          "strain": 0.1
-        },
-        {
-          "timestamp": "2025-11-29T04:24:32.764285Z",
-          "flexAngle": 108,
-          "strain": 0.08
-        }
-      ]
-    }
-  ],
+  {
+    "device": "Smartwatch",
+    "sessions": [
+      {
+        "timestamp": "2025-11-29T09:42:11.381Z",
+        "heartRate": 82,
+        "steps": 1240,
+        "stressLevel": 3
+      },
+      {
+        "timestamp": "2025-11-28T21:15:50.612Z",
+        "heartRate": 76,
+        "steps": 8423,
+        "stressLevel": 2
+      },
+      {
+        "timestamp": "2025-11-28T07:32:18.004Z",
+        "heartRate": 67,
+        "sleepDurationHours": 6.8,
+        "sleepQuality": "fair"
+      }
+    ]
+  },
+  {
+    "device": "Fitness Band",
+    "sessions": [
+      {
+        "timestamp": "2025-11-29T16:05:25.441Z",
+        "activeMinutes": 32,
+        "caloriesBurned": 212,
+        "maxHeartRate": 118
+      },
+      {
+        "timestamp": "2025-11-28T14:49:03.229Z",
+        "activeMinutes": 18,
+        "caloriesBurned": 134,
+        "maxHeartRate": 109
+      },
+      {
+        "timestamp": "2025-11-27T19:24:43.501Z",
+        "activeMinutes": 41,
+        "caloriesBurned": 276,
+        "maxHeartRate": 123
+      }
+    ]
+  },
+  {
+    "device": "Blood Pressure Monitor",
+    "sessions": [
+      {
+        "timestamp": "2025-11-29T08:25:03.414Z",
+        "systolic": 124,
+        "diastolic": 78,
+        "pulse": 72
+      },
+      {
+        "timestamp": "2025-11-28T08:28:17.984Z",
+        "systolic": 129,
+        "diastolic": 82,
+        "pulse": 75
+      },
+      {
+        "timestamp": "2025-11-27T08:22:58.731Z",
+        "systolic": 121,
+        "diastolic": 76,
+        "pulse": 71
+      }
+    ]
+  },
+  {
+    "device": "Smart Scale",
+    "sessions": [
+      {
+        "timestamp": "2025-11-29T07:12:39.218Z",
+        "weightKg": 72.4,
+        "bodyFatPercent": 18.9,
+        "waterPercent": 57.2
+      },
+      {
+        "timestamp": "2025-11-28T07:15:21.914Z",
+        "weightKg": 72.6,
+        "bodyFatPercent": 19.1,
+        "waterPercent": 57.1
+      },
+      {
+        "timestamp": "2025-11-27T07:11:02.377Z",
+        "weightKg": 72.3,
+        "bodyFatPercent": 18.8,
+        "waterPercent": 57.4
+      }
+    ]
+  }
+],
   "chat_history": [
     {
       "role": "assistant",

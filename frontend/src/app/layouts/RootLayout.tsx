@@ -3,7 +3,9 @@ import { Outlet } from "react-router-dom";
 import { HistoryModule } from "../../modules/history-module/HistoryModule";
 import { DevicesModule } from "../../modules/devices-module/DevicesModule";
 import { AlertsModule } from "../../modules/alerts-module/AlertsModule";
-import Logo from "../../../assets/logo.svg?react";
+import Logo from "../../assets/logo.svg?react";
+import LogoIcon from "../../assets/logo-icon.svg?react";
+
 import {
   CountdownTimerIcon,
   ExclamationTriangleIcon,
@@ -37,7 +39,10 @@ export const RootLayout = () => {
     <Flex height="100dvh" p="2" gap="2" minHeight="0px" overflow="hidden">
       <Flex flexGrow="1" direction="column">
         <Flex align="center" justify="between" minHeight="0px" flexShrink="0">
-          <Logo />
+          <Flex gap="1" align="center">
+            <Logo />
+            <LogoIcon />
+          </Flex>
           <Tooltip content="This application is AI Assistent that helps to monitor your health. It collects data from your smart devices, agregates it and uses for future risk and problem analysis">
             <QuestionMarkCircledIcon />
           </Tooltip>

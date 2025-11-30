@@ -40,7 +40,7 @@ export const AlertsModule = () => {
                     alert_item.risk >= 6
                       ? "var(--red-9)"
                       : alert_item.risk > 3
-                      ? "var(--yellow-10)"
+                      ? "var(--yellow-8)"
                       : undefined,
                 }}
               />

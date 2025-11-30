@@ -7,8 +7,11 @@ import { Loader } from "@react-three/drei";
 import { Flex } from "@radix-ui/themes";
 
 function* imitateBodyPartSelectGenerator() {
-  yield "Right side of chest";
-  yield "Left side of chest";
+  yield "Right side of the chest";
+  yield "Left side of the chest";
+  yield "Head";
+  yield "Neck";
+  yield "Left leg";
   yield "Head";
 }
 

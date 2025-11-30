@@ -20,6 +20,17 @@ export const AlertsModule = () => {
         data.map((alert_item) => (
           <Card key={alert_item.disease}>
             <Flex gap="1" align="center">
+              <Text
+                weight="medium"
+                style={{
+                  textTransform: "capitalize",
+                  flexGrow: 1,
+                  whiteSpace: "normal",
+                  overflowWrap: "anywhere",
+                }}
+              >
+                {alert_item.disease}
+              </Text>
               <ExclamationTriangleIcon
                 style={{
                   flexShrink: 0,
@@ -33,20 +44,6 @@ export const AlertsModule = () => {
                       : undefined,
                 }}
               />
-              <Text
-                weight='medium'
-                
-                style={{
-                  textTransform: "capitalize",
-                  flexGrow: 1,
-                  whiteSpace: "normal",
-                  overflowWrap: "anywhere",
-                }}
-              >
-                {alert_item.disease}
-              </Text>
-
-              <Text>{alert_item.risk}</Text>
             </Flex>
           </Card>
         ))

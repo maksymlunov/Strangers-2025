@@ -56,8 +56,14 @@ class DeviceRequest(BaseModel):
     name: str
 
 
-class ChatRequest(BaseModel):
+class ChatMessage(BaseModel):
+    role: str
     message: str
+    timestamp: str
+    bodyPart: str | None = None
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
 
 
 def _parse_iso_to_datetime(ts: str | None) -> datetime:
@@ -618,68 +624,100 @@ async def create_history(item: HistoryItem):
         "advice": advice,
     }
 
-
 @app.post("/chat")
 async def chat(req: ChatRequest):
     """
-    Uses:
-    - data['current_problem']: last /history record (initial complaint)
-    - data['chat_history']: full conversation history for this complaint
-
-    Each time /history is called, chat_history is cleared and current_problem is updated.
+    Новый логика:
+    - НЕ сохраняем chat_history
+    - Фронт присылает полный массив сообщений
+    - Берём последнее user сообщение
+    - Достаём user message + bodyPart
+    - GPT генерирует advice
+    - Создаём history item и сохраняем в файл
+    - Возвращаем массив сообщений + новое assistant сообщение
     """
-    data = load_data()
 
-    current_problem = data.get("current_problem")
-    if not current_problem and data.get("history"):
-        # history is newest-first; current problem = most recent
-        current_problem = data["history"][0]
-        data["current_problem"] = current_problem
+    messages = req.messages
 
-    if "chat_history" not in data:
-        data["chat_history"] = []
+    # Находим последнее user-сообщение
+    last_user_msg = None
+    for m in reversed(messages):
+        if m.role == "user":
+            last_user_msg = m
+            break
 
-    user_entry = {
-        "role": "user",
-        "message": req.message,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+    if not last_user_msg:
+        return {
+            "messages": messages,
+            "error": "No user message found"
+        }
+
+    # GPT контекст
+    payload = {
+        "chat_history": [m.dict() for m in messages],
+        "latest_user_message": last_user_msg.message,
+        "bodyPart": last_user_msg.bodyPart,
     }
-    data["chat_history"].append(user_entry)
+
+    system_prompt = (
+        "You are a helpful assistant in a health-monitoring app. "
+        "You chat with the user about their symptoms. "
+        "Always give simple, practical advice. "
+        "You are NOT a doctor. This is NOT medical advice."
+    )
+
+    user_content = (
+        "Continue the conversation based on this JSON:\n\n"
+        f"{json.dumps(payload, ensure_ascii=False, indent=2)}\n\n"
+        "Your task:\n"
+        "- Respond to the latest user message.\n"
+        "- Keep tone warm and simple.\n"
+        "- Give brief, practical tips.\n"
+        "- Clearly say this is NOT medical advice.\n"
+        "- Reply only with raw assistant text."
+    )
 
     try:
-        reply = await ask_chat_gpt_for_chat(
-            current_problem=current_problem,
-            chat_history=data["chat_history"],
-            user_message=req.message,
+        completion = await async_client.chat.completions.create(
+            model="gpt-5.1",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content},
+            ],
+            temperature=0.4,
         )
+        advice_text = completion.choices[0].message.content.strip()
+
     except Exception as e:
-        reply = (
-            "System notice: AI call failed, so here is a fallback message.\n"
-            f"Internal error: {e}"
+        advice_text = (
+            "System notice: AI call failed.\n"
+            f"Error: {e}"
         )
 
-    assistant_entry = {
-        "role": "assistant",
-        "message": reply,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-    }
-    data["chat_history"].append(assistant_entry)
+    # Сохраняем в history
+    data = load_data()
 
+    history_item = {
+        "message": last_user_msg.message,
+        "bodyPart": last_user_msg.bodyPart,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "advice": advice_text,
+    }
+
+    data["history"].append(history_item)
     save_data(data)
 
-    # Make sure returned chat_history is newest-first
-    sorted_chat = sorted(
-        data["chat_history"],
-        key=lambda x: _parse_iso_to_datetime(x.get("timestamp")),
-        reverse=True,
+    # Формируем ассистент-сообщение для ответа
+    assistant_message = ChatMessage(
+        role="assistant",
+        message=advice_text,
+        timestamp=datetime.utcnow().isoformat() + "Z",
+        bodyPart=None
     )
 
     return {
-        "current_problem": current_problem,
-        "reply": reply,
-        "chat_history": sorted_chat,
+        "messages": messages + [assistant_message],
     }
-
 
 @app.post("/devices")
 def create_device(device: DeviceRequest):

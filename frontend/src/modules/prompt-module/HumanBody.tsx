@@ -1,27 +1,71 @@
-import { Flex, Select } from "@radix-ui/themes";
-import type { FC } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, useGLTF } from "@react-three/drei";
+import * as THREE from "three";
+import { Suspense, useMemo, type FC } from "react";
 
-type HumanBodyProps = {
-  selectedBodyPart: string | null;
-  onChange: (value: string) => void;
+import { Loader } from "@react-three/drei";
+import { Flex } from "@radix-ui/themes";
+
+function* imitateBodyPartSelectGenerator() {
+  yield "Right side of chest";
+  yield "Left side of chest";
+  yield "Head";
+}
+
+const bodyPartGenerator = imitateBodyPartSelectGenerator();
+
+const HumanModel = () => {
+  const gltf = useGLTF("/human.glb");
+
+  const scene = useMemo(() => gltf.scene.clone(true), [gltf]);
+
+  const { center } = useMemo(() => {
+    const box = new THREE.Box3().setFromObject(gltf.scene);
+    const center = new THREE.Vector3();
+    const size = new THREE.Vector3();
+    box.getCenter(center);
+    box.getSize(size);
+    return { center };
+  }, [gltf]);
+
+  return (
+    <group position={[-center.x, -center.y, -center.z]} scale={1}>
+      <primitive object={scene} />
+    </group>
+  );
 };
 
-export const HumanBody: FC<HumanBodyProps> = ({
-  selectedBodyPart,
-  onChange,
+type HumanSceneProps = {
+  selectedBodyPart: string | null;
+  handleSelectBodyPart: (bodyPart: string | null) => void;
+  isDisabled: boolean;
+};
+
+export const HumanScene: FC<HumanSceneProps> = ({
+  handleSelectBodyPart,
+  isDisabled,
 }) => {
   return (
-    <Flex justify="center" align="center" width="100%" height="100%">
-      <Select.Root
-        value={selectedBodyPart ?? ""}
-        onValueChange={(value) => onChange(value)}
-      >
-        <Select.Trigger placeholder="Body part" />
-        <Select.Content>
-          <Select.Item value="head">Head</Select.Item>
-          <Select.Item value="leg">Leg</Select.Item>
-        </Select.Content>
-      </Select.Root>
+    <Flex
+      direction="column"
+      flexGrow="1"
+      flexBasis="90%"
+      onClick={() => {
+        if (isDisabled) return;
+        handleSelectBodyPart(bodyPartGenerator.next().value ?? null);
+      }}
+    >
+      <Canvas camera={{ position: [0, 1.5, 3], zoom: 3 }}>
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[3, 5, 2]} intensity={1} />
+
+        <Suspense fallback={null}>
+          <HumanModel />
+        </Suspense>
+
+        <OrbitControls />
+      </Canvas>
+      <Loader containerStyles={{ backgroundColor: "darkgray" }} />
     </Flex>
   );
 };

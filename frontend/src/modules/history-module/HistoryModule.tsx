@@ -1,9 +1,11 @@
 import {
   Button,
+  Callout,
   Card,
   DataList,
   Flex,
   Heading,
+  ScrollArea,
   Text,
   Tooltip,
 } from "@radix-ui/themes";
@@ -11,6 +13,7 @@ import {
 import { valetudoApi } from "../../config/api/axios";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { DownloadIcon } from "@radix-ui/react-icons";
+import { format } from "date-fns";
 // import { useQuery } from "@tanstack/react-query"
 // import { valetudoApi } from "../../config/api/axios"
 
@@ -34,7 +37,7 @@ export const HistoryModule = () => {
     },
   });
 
-  const { data: history } = useQuery({
+  const { data: history = [] } = useQuery({
     queryKey: ["history_all"],
     queryFn: async () => {
       const res = await valetudoApi.get<
@@ -59,24 +62,37 @@ export const HistoryModule = () => {
           <DownloadIcon />
         </Button>
       </Tooltip>
-      {history?.map((history_item) => (
-        <Card key={history_item.timestamp}>
-          <Flex direction="column">
-            <Flex justify="between">
-              <Heading size="3" style={{ textTransform: "capitalize" }}>
-                {history_item.bodyPart}
-              </Heading>
-              <Text>{history_item.timestamp}</Text>
-            </Flex>
-            <DataList.Root>
-              <DataList.Item>
-                <DataList.Label>Issue</DataList.Label>
-                <DataList.Value>{history_item.message}</DataList.Value>
-              </DataList.Item>
-            </DataList.Root>
-          </Flex>
-        </Card>
-      ))}
+      <ScrollArea style={{ maxHeight: "500px" }}>
+        <Flex direction="column" gap="2">
+          {history.length > 0 ? (
+            history.map((history_item) => (
+              <Card key={history_item.timestamp}>
+                <Flex direction="column">
+                  <Flex justify="between">
+                    <Heading size="3" style={{ textTransform: "capitalize" }}>
+                      {history_item.bodyPart}
+                    </Heading>
+                    <Text>{format(history_item.timestamp, "dd.MM.yyyy")}</Text>
+                  </Flex>
+                  <DataList.Root>
+                    <DataList.Item>
+                      <DataList.Label>Issue</DataList.Label>
+                      <DataList.Value>{history_item.message}</DataList.Value>
+                    </DataList.Item>
+                  </DataList.Root>
+                </Flex>
+              </Card>
+            ))
+          ) : (
+            <Callout.Root>
+              <Callout.Text>
+                No history records. Commicate with this AI assistant and records
+                will appear
+              </Callout.Text>
+            </Callout.Root>
+          )}
+        </Flex>
+      </ScrollArea>
     </Flex>
   );
 };

@@ -12,6 +12,8 @@ import { useQuery } from "@tanstack/react-query";
 import { valetudoApi } from "../../config/api/axios";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
+import { format } from "date-fns";
+import { startCase } from "lodash";
 
 // this logic will be improved
 const connectDevice = async () => {
@@ -77,12 +79,20 @@ export const DevicesModule = () => {
               selectedDeviceSessions?.map((session) => (
                 <Card key={session.timestamp} style={{ flexShrink: 0 }}>
                   <DataList.Root>
-                    {Object.keys(session).map((key) => (
-                      <DataList.Item key={key}>
-                        <DataList.Label>{key}</DataList.Label>
-                        <DataList.Value>{session[key]}</DataList.Value>
-                      </DataList.Item>
-                    ))}
+                    {Object.keys(session)
+                      .filter((key) => key !== "timestamp")
+                      .map((key) => (
+                        <DataList.Item key={key}>
+                          <DataList.Label>{startCase(key)}</DataList.Label>
+                          <DataList.Value>{session[key]}</DataList.Value>
+                        </DataList.Item>
+                      ))}
+                    <DataList.Item>
+                      <DataList.Label>Date</DataList.Label>
+                      <DataList.Value>
+                        {format(session.timestamp, "dd.MM.yyyy")}
+                      </DataList.Value>
+                    </DataList.Item>
                   </DataList.Root>
                 </Card>
               ))

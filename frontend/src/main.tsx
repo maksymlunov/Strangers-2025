@@ -6,7 +6,6 @@ import "./index.css";
 import { App } from "./app/App.tsx";
 import {
   Theme,
-  // ThemePanel
 } from "@radix-ui/themes";
 
 import { BrowserRouter } from "react-router-dom";
@@ -24,9 +23,8 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <Theme appearance='dark'>
+        <Theme appearance='dark' accentColor='cyan'>
           <App />
-          {/* <ThemePanel /> */}
         </Theme>
       </QueryClientProvider>
     </BrowserRouter>

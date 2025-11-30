@@ -4,12 +4,32 @@ import { HistoryModule } from "../../modules/history-module/HistoryModule";
 import { DevicesModule } from "../../modules/devices-module/DevicesModule";
 import { AlertsModule } from "../../modules/alerts-module/AlertsModule";
 import Logo from "../../../assets/logo.svg?react";
-import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import {
+  CountdownTimerIcon,
+  ExclamationTriangleIcon,
+  MobileIcon,
+  QuestionMarkCircledIcon,
+} from "@radix-ui/react-icons";
 
 const NAVIGATE_ITEMS = [
-  { label: "Alerts", path: "alerts", content: <AlertsModule /> },
-  { label: "History", path: "history", content: <HistoryModule /> },
-  { label: "Devices", path: "devices", content: <DevicesModule /> },
+  {
+    label: "Alerts",
+    icon: <ExclamationTriangleIcon />,
+    path: "alerts",
+    content: <AlertsModule />,
+  },
+  {
+    label: "History",
+    icon: <CountdownTimerIcon />,
+    path: "history",
+    content: <HistoryModule />,
+  },
+  {
+    label: "Devices",
+    icon: <MobileIcon />,
+    path: "devices",
+    content: <DevicesModule />,
+  },
 ];
 
 export const RootLayout = () => {
@@ -43,7 +63,9 @@ export const RootLayout = () => {
                 key={item.path}
                 value={item.path}
               >
-                {item.label}
+                <Flex align="center" gap="1">
+                  {item.label} {item.icon}
+                </Flex>
               </Tabs.Trigger>
             ))}
           </Tabs.List>

@@ -13,6 +13,9 @@ function* imitateBodyPartSelectGenerator() {
   yield "Neck";
   yield "Left leg";
   yield "Head";
+  while (true) {
+    yield "Stomach";
+  }
 }
 
 const bodyPartGenerator = imitateBodyPartSelectGenerator();

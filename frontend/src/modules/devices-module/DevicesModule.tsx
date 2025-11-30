@@ -9,11 +9,12 @@ import {
   Callout,
 } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
-import { valetudoApi } from "../../config/api/axios";
+import { valetudoApi } from "@/config/api/axios";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { format } from "date-fns";
 import { startCase } from "lodash";
+import { HelpComponent } from "@/components/HelpComponent";
 
 // this logic will be improved
 const connectDevice = async () => {
@@ -107,6 +108,7 @@ export const DevicesModule = () => {
       <Button onClick={connectDevice}>
         Connect device <PlusIcon />
       </Button>
+      <HelpComponent content="You can connect your smart devices to let us collect your health data that will be used to give you more precise answers and analysis" />
     </Flex>
   );
 };

@@ -11,7 +11,7 @@ import { useState } from "react";
 import { HumanScene } from "./HumanBody";
 import { PromptInput } from "./PromptInput";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { valetudoApi } from "../../config/api/axios";
+import { valetudoApi } from "@/config/api/axios";
 
 export type Message = {
   role: "assistant" | "user";
@@ -68,9 +68,9 @@ export const PromptModule = () => {
         ) : (
           <Callout.Root size="3">
             <Callout.Icon>
-              <InfoCircledIcon />
+              <InfoCircledIcon height="24px" width="24px" />
             </Callout.Icon>
-            <Callout.Text>
+            <Callout.Text weight="medium">
               You need to select body part that you are worried about.
             </Callout.Text>
           </Callout.Root>

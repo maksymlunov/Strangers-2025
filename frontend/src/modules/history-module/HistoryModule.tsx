@@ -14,8 +14,7 @@ import { valetudoApi } from "../../config/api/axios";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { DownloadIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
-// import { useQuery } from "@tanstack/react-query"
-// import { valetudoApi } from "../../config/api/axios"
+import { HelpComponent } from "@/components/HelpComponent";
 
 export const HistoryModule = () => {
   const { mutate: downloadReport, isPending } = useMutation({
@@ -93,6 +92,7 @@ export const HistoryModule = () => {
           )}
         </Flex>
       </ScrollArea>
+      <HelpComponent content="History is the list of records of your deseases that you shared with us" />
     </Flex>
   );
 };

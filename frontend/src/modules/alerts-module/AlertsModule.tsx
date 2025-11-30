@@ -1,7 +1,8 @@
 import { Card, Flex, Skeleton, Text } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
-import { valetudoApi } from "../../config/api/axios";
+import { valetudoApi } from "@/config/api/axios";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { HelpComponent } from "@/components/HelpComponent";
 
 export const AlertsModule = () => {
   const { data = [] } = useQuery({
@@ -65,6 +66,7 @@ export const AlertsModule = () => {
           </Skeleton>
         </>
       )}
+      <HelpComponent content="Alerts are some critical or less important information about your health. Thanks to them you may know about some desease that you may have according to collected data" />
     </Flex>
   );
 };

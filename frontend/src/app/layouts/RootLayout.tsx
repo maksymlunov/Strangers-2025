@@ -1,10 +1,10 @@
 import { Box, Card, Flex, Tabs, Tooltip } from "@radix-ui/themes";
 import { Outlet } from "react-router-dom";
-import { HistoryModule } from "../../modules/history-module/HistoryModule";
-import { DevicesModule } from "../../modules/devices-module/DevicesModule";
-import { AlertsModule } from "../../modules/alerts-module/AlertsModule";
-import Logo from "../../assets/logo.svg?react";
-import LogoIcon from "../../assets/logo-icon.svg?react";
+import { HistoryModule } from "@/modules/history-module/HistoryModule";
+import { DevicesModule } from "@/modules/devices-module/DevicesModule";
+import { AlertsModule } from "@/modules/alerts-module/AlertsModule";
+import Logo from "@/assets/logo.svg?react";
+import LogoIcon from "@/assets/logo-icon.svg?react";
 
 import {
   CountdownTimerIcon,
@@ -12,6 +12,7 @@ import {
   MobileIcon,
   QuestionMarkCircledIcon,
 } from "@radix-ui/react-icons";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const NAVIGATE_ITEMS = [
   {
@@ -43,9 +44,17 @@ export const RootLayout = () => {
             <Logo />
             <LogoIcon />
           </Flex>
-          <Tooltip content="This application is AI Assistent that helps to monitor your health. It collects data from your smart devices, agregates it and uses for future risk and problem analysis">
-            <QuestionMarkCircledIcon />
-          </Tooltip>
+          <Flex gap="1" align="center">
+            <Tooltip content="This application is AI Assistent that helps to monitor your health. It collects data from your smart devices and history of your diseases, agregates it and uses for future risk and problem analysis">
+              <QuestionMarkCircledIcon
+                strokeWidth="0.5px"
+                style={{ color: "var(--accent-11)" }}
+                width={32}
+                height={32}
+              />
+            </Tooltip>
+            <ThemeToggle />
+          </Flex>
         </Flex>
         <Outlet />
       </Flex>

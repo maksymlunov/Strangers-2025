@@ -700,7 +700,7 @@ async def chat(req: ChatRequest):
     history_item = {
         "message": last_user_msg.message,
         "bodyPart": last_user_msg.bodyPart,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": last_user_msg.timestamp or datetime.utcnow().isoformat() + "Z",
         "advice": advice_text,
     }
 
